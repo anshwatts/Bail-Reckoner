@@ -110,3 +110,28 @@ export const bailStatusResultSchema = z.object({
 });
 
 export const bailResultSchema = bailStatusResultSchema;
+
+const dateStringSchema = z
+  .string()
+  .nullable()
+  .refine(
+    (val) => {
+      if (val === null) return true;
+      return !isNaN(Date.parse(val));
+    },
+    { message: 'Invalid date string' }
+  )
+  .default(null);
+
+export const extractedCaseSchema = z.object({
+  accusedName: z.string().nullable().default(null),
+  firNumber: z.string().nullable().default(null),
+  policeStation: z.string().nullable().default(null),
+  district: z.string().nullable().default(null),
+  arrestDate: dateStringSchema,
+  remandDate: dateStringSchema,
+  chargesheetDate: dateStringSchema,
+  rawSections: z.array(z.string()).default([]),
+  confidence: z.number().min(0).max(1).default(1),
+  missingFields: z.array(z.string()).default([])
+});
