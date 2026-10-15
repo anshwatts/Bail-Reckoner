@@ -1,13 +1,45 @@
 import { z } from 'zod';
 
-export const offenseSchema = z.object({
-  section: z.string().trim().min(1),
-  act: z.string().trim().min(1).optional(),
-  isBailable: z.boolean(),
-  maxSentenceMonths: z.number().int().nonnegative().default(0),
-  carriesLifeImprisonment: z.boolean().default(false),
-  carriesDeathPenalty: z.boolean().default(false)
-});
+export const offenseSchema = z
+  .object({
+    section: z.string().trim().min(1),
+    act: z.string().trim().min(1).optional(),
+    code: z.string().trim().min(1).optional(),
+    title: z.string().trim().min(1).optional(),
+    isBailable: z.boolean(),
+    maxSentenceMonths: z.number().int().nonnegative().optional(),
+    maxMonths: z.number().int().nonnegative().optional(),
+    carriesLifeImprisonment: z.boolean().optional(),
+    isLife: z.boolean().optional(),
+    carriesDeathPenalty: z.boolean().optional(),
+    isDeath: z.boolean().optional(),
+    equivalentSection: z.string().nullable().optional()
+  })
+  .transform((val) => {
+    const act = val.act || val.code;
+    const code = val.code || val.act;
+    const maxMonths = val.maxMonths ?? val.maxSentenceMonths ?? 0;
+    const maxSentenceMonths = val.maxSentenceMonths ?? val.maxMonths ?? 0;
+    const isLife = val.isLife ?? val.carriesLifeImprisonment ?? false;
+    const carriesLifeImprisonment = val.carriesLifeImprisonment ?? val.isLife ?? false;
+    const isDeath = val.isDeath ?? val.carriesDeathPenalty ?? false;
+    const carriesDeathPenalty = val.carriesDeathPenalty ?? val.isDeath ?? false;
+
+    return {
+      section: val.section,
+      act,
+      code,
+      title: val.title,
+      isBailable: val.isBailable,
+      maxMonths,
+      maxSentenceMonths,
+      isLife,
+      carriesLifeImprisonment,
+      isDeath,
+      carriesDeathPenalty,
+      equivalentSection: val.equivalentSection ?? null
+    };
+  });
 
 export const caseRecordSchema = z
   .object({
