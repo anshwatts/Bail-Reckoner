@@ -147,7 +147,9 @@ app.post('/api/cases', async (req, res) => {
 const PORT = process.env.PORT || 5000;
 
 if (process.env.NODE_ENV !== 'test') {
-  app.listen(PORT, () => {});
+  app.listen(PORT, () => {
+    console.log(`Bail Reckoner backend server running on http://localhost:${PORT}`);
+  });
 }
 
 export { app };

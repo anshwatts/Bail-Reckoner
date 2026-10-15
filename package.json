@@ -5,6 +5,9 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
+    "start": "node src/server.js",
+    "server": "node src/server.js",
+    "client": "npm --prefix client run dev",
     "test": "vitest run"
   },
   "keywords": [],
