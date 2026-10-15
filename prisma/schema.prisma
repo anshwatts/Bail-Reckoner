@@ -1,0 +1,91 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  ADVOCATE
+  LEGAL_AID
+  ADMIN
+}
+
+model User {
+  id           String       @id @default(uuid())
+  name         String
+  email        String       @unique
+  passwordHash String
+  role         Role         @default(ADVOCATE)
+  createdAt    DateTime     @default(now())
+  assessments  Assessment[]
+  auditLogs    AuditLog[]
+}
+
+model Accused {
+  id           String   @id @default(uuid())
+  name         String
+  inmateNumber String?  @unique
+  gender       String
+  state        String
+  district     String
+  createdAt    DateTime @default(now())
+  cases        Case[]
+}
+
+model Case {
+  id               String       @id @default(uuid())
+  accusedId        String
+  accused          Accused      @relation(fields: [accusedId], references: [id])
+  firNumber        String
+  policeStation    String
+  district         String
+  arrestDate       DateTime
+  remandDate       DateTime
+  chargesheetDate  DateTime?
+  isFirstTime      Boolean
+  hasMultipleCases Boolean
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+  offenses         Offense[]
+  assessments      Assessment[]
+}
+
+model Offense {
+  id         String  @id @default(uuid())
+  caseId     String
+  case       Case    @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  code       String
+  section    String
+  title      String
+  maxMonths  Int
+  isLife     Boolean
+  isDeath    Boolean
+  isBailable Boolean
+}
+
+model Assessment {
+  id                  String   @id @default(uuid())
+  caseId              String
+  case                Case     @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  userId              String
+  user                User     @relation(fields: [userId], references: [id])
+  checkedAt           DateTime @default(now())
+  isBailable          Boolean
+  sec479Eligible      Boolean
+  sec479Fraction      String?
+  defaultBailEligible Boolean
+  summary             Json
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  userId     String?
+  user       User?    @relation(fields: [userId], references: [id])
+  action     String
+  entityType String
+  entityId   String
+  details    Json
+  createdAt  DateTime @default(now())
+}
